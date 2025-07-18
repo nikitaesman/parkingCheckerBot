@@ -1,0 +1,34 @@
+{
+  "name": "parking_checker",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./dist/server.js",
+    "dev": "npm run build:dev && concurrently -p=none \"cross-env NODE_ENV=development webpack -w --mode development\" \"nodemon ./dist/server.js --ignore storage/ --ignore logs\"",
+    "build:prod": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "test": "jest --verbose --testPathIgnorePatterns=/dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.2.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "playwright": "^1.54.1"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^24.0.14",
+    "@types/node-telegram-bot-api": "^0.64.9",
+    "@types/webpack": "^5.28.5",
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-node-externals": "^3.0.0"
+  }
+}

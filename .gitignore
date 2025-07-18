@@ -1,0 +1,13 @@
+/dist
+/storage
+
+node_modules
+/node_modules
+
+*.log
+*.env
+
+# Ignore build JavaScript files
+dist
+/dist
+logs
