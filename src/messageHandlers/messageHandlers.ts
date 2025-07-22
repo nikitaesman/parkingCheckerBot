@@ -2,6 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { ParkingDataStore } from "../store/ParkingDataStore";
 import { SubscribesStore } from "../store/SubscribesStore";
 import { ChatsStore } from "../store/ChatsStore";
+import { IS_DEV } from "../constants";
 
 export interface MessageHandlersParams {
 	bot: TelegramBot
@@ -18,6 +19,18 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 		chatsStore
 	} = params
 
+	if (IS_DEV) {
+		bot.on('message', async (msg) => {
+			const chatId = msg.chat.id;
+			const text = msg.text?.trim();
+
+			console.log("text", text);
+
+			// Отправляем обратно то же сообщение
+			await bot.sendMessage(chatId, `Вы написали: ${text}`);
+		});
+	}
+
 	bot.onText(/\/start/, async (msg) => {
 		const chatId = msg.chat.id;
 		const firstName = msg.from?.first_name || 'пользователь';
@@ -26,14 +39,12 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 
 		await bot.sendMessage(chatId, `Здравствуйте, ${firstName}! Добро пожаловать в бот проверки парковочных зон. \nВыберите сценарий:`, {
 			reply_markup: {
-				keyboard: [[{ text: 'Список зон', },{ text: 'Время работы бота', }]],
-				resize_keyboard: true,
-				one_time_keyboard: true
+				remove_keyboard: true
 			}
 		});
 	});
- 
-	bot.onText(/Список зон/, async (msg) => {
+
+	bot.onText(/\/zones/, async (msg) => {
 		const chatId = msg.chat.id;
 		try {
 			chatsStore.addChat(chatId)
@@ -123,7 +134,7 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 			const isExistZoneId = parkingDataStore.parkingDataList.find((el) => el.id === zoneId)
 
 			if (!isExistZoneId) {
-				console.log("isExistZoneId",isExistZoneId);
+				console.log("isExistZoneId", isExistZoneId);
 				await bot.sendMessage(chatId, `Зоны с ID: ${zoneId} не существует`);
 				await bot.answerCallbackQuery(query.id);
 				return
@@ -162,14 +173,4 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 		await bot.sendMessage(chatId, `Запрос не обработан`)
 		await bot.answerCallbackQuery(query.id);
 	})
-
-	// bot.on('message', async (msg) => {
-	// 	const chatId = msg.chat.id;
-	// 	const text = msg.text?.trim();
-
-	// 	console.log("text", text);
-
-	// 	// Отправляем обратно то же сообщение
-	// 	await bot.sendMessage(chatId, `Вы написали: ${text}`);
-	// });
 }

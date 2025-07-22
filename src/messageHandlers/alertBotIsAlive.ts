@@ -33,7 +33,7 @@ export const alertBotIsAlive = (params: AlertBotIsAliveParams) => {
 		}
 	}
 
-	bot.onText(/Время работы бота/, async (msg) => {
+	bot.onText(/\/lifetime/, async (msg) => {
 		const chatId = msg.chat.id;
 		try {
 				await sendBotIsAliveAlertByChatId(chatId)

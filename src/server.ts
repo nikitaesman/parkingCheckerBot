@@ -16,7 +16,7 @@ dotenv.config()
 const BOT_TOKEN = process.env.BOT_TOKEN as string;
 const STORES_FILE_PATH = path.resolve('./storage')
 
-console.log("STORES_FILE_PATH",STORES_FILE_PATH);
+console.log("STORES_FILE_PATH", STORES_FILE_PATH);
 
 
 async function main() {
@@ -29,6 +29,12 @@ async function main() {
 
 		await chatsStore.readChatsFromFile()
 
+		bot.setChatMenuButton({
+			menu_button: {
+				type: 'commands'
+			}
+		});
+
 		alertBotIsAlive({
 			bot,
 			chatsStore,
@@ -39,7 +45,7 @@ async function main() {
 
 		await subscribesStore.readSubscribesFromFile()
 
-		const parkingDataStore = new ParkingDataStore() 
+		const parkingDataStore = new ParkingDataStore()
 
 		alertHandle({
 			bot,

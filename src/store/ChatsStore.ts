@@ -37,8 +37,6 @@ export class ChatsStore {
 
 			const preparedData = JSON.parse(fileData.toString())
 
-			console.log("preparedData",preparedData);
-
 			preparedData.forEach((el: number) => {
 				this._chats.add(el)
 			})
