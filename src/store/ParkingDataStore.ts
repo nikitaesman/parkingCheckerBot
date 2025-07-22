@@ -9,6 +9,11 @@ export class ParkingDataStore {
 	private _parkingDataList: ParkingData[] = []
 	private interval: NodeJS.Timeout | null = null
 	private callbacks: Set<CustomCb> = new Set<CustomCb>()
+	private _parkingDataLoading: Promise<void> | null = null
+
+	get parkingDataLoading() {
+		return this._parkingDataLoading
+	}
 
 	startIntervalUpdateParkingData = () => {
 		this.updateWithCustomCallbacks()
@@ -37,7 +42,11 @@ export class ParkingDataStore {
 	}
 
 	private updateWithCustomCallbacks = async () => {
+		const { promise, resolve } = Promise.withResolvers<void>()
+
 		try {
+			this._parkingDataLoading = promise
+
 			console.log("updateWithCustomCallbacks iteration start",);
 
 			await this.updateParkingData()
@@ -45,8 +54,12 @@ export class ParkingDataStore {
 			await Promise.all(this.callbacks.values().map(el => el()))
 
 			console.log("updateWithCustomCallbacks iteration end",);
+
 		} catch (e: any) {
 			console.log("error while updateWithCustomCallbacks", e)
+		} finally {
+			resolve()
+			this._parkingDataLoading = null
 		}
 	}
 

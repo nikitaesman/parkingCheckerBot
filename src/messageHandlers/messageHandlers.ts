@@ -3,6 +3,7 @@ import { ParkingDataStore } from "../store/ParkingDataStore";
 import { SubscribesStore } from "../store/SubscribesStore";
 import { ChatsStore } from "../store/ChatsStore";
 import { IS_DEV } from "../constants";
+import { sendSubscriptions } from "./sendSubscriptions";
 
 export interface MessageHandlersParams {
 	bot: TelegramBot
@@ -37,7 +38,7 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 
 		chatsStore.addChat(chatId)
 
-		await bot.sendMessage(chatId, `Здравствуйте, ${firstName}! Добро пожаловать в бот проверки парковочных зон. \nВыберите сценарий:`, {
+		await bot.sendMessage(chatId, `Здравствуйте, ${firstName}! Добро пожаловать в бот проверки парковочных зон. \nДля работы с ботом нажмите на кнопку меню и выберите нужную команду.`, {
 			reply_markup: {
 				remove_keyboard: true
 			}
@@ -115,6 +116,21 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 		}
 	})
 
+	bot.onText(/\/subscriptions/, async (msg) => {
+		const chatId = msg.chat.id;
+		try {
+			await sendSubscriptions({
+				bot,
+				chatId,
+				parkingDataStore,
+				subscribesStore
+			})
+
+		} catch (e: any) {
+			await bot.sendMessage(chatId, `Ошибка обработки сообщения: error: ${e}`)
+		}
+	})
+
 	bot.on('callback_query', async (query) => {
 		const chatId = query?.message?.chat.id;
 		const text = query.data; // это "B1" или "B2")
@@ -126,6 +142,12 @@ export const messageHandlers = (params: MessageHandlersParams) => {
 		}
 
 		chatsStore.addChat(chatId)
+
+		if (query.data === 'noop') {
+			await bot.answerCallbackQuery(query.id, { text: 'Эта кнопка недоступна', show_alert: false });
+
+			return
+		}
 
 		if (text?.startsWith('/subscribe')) {
 			const parts = text.split(' '); // ['/subscribe', '123']

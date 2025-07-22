@@ -35,12 +35,6 @@ async function main() {
 			}
 		});
 
-		alertBotIsAlive({
-			bot,
-			chatsStore,
-			startTimestamp
-		})
-
 		const subscribesStore = new SubscribesStore(STORES_FILE_PATH)
 
 		await subscribesStore.readSubscribesFromFile()
@@ -56,7 +50,19 @@ async function main() {
 
 		parkingDataStore.startIntervalUpdateParkingData()
 
-		await wait(5000)
+		const parkingDataLoadingPromise = parkingDataStore.parkingDataLoading
+
+		if(parkingDataLoadingPromise) {
+			await parkingDataLoadingPromise
+		}
+
+		alertBotIsAlive({
+			bot,
+			chatsStore,
+			parkingDataStore,
+			subscribesStore,
+			startTimestamp
+		})
 
 		messageHandlers({
 			bot,
